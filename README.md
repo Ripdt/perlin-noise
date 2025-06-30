@@ -114,7 +114,36 @@ produto escalar = `1 * 0.5 + 0 * 0.2 = 0.5`.
 
 ---
 
-## 5. Resumo Visual
+## 5. Funções `init_perlin` e `gerar_terreno_perlin`
+
+### `init_perlin`
+
+Inicializa a tabela de permutação usada pelo Perlin Noise.
+
+- Cria um vetor de 0 a 255.
+- Embaralha aleatoriamente esses valores.
+- Duplica a tabela para facilitar o acesso circular.
+- O resultado é usado para selecionar gradientes pseudoaleatórios.
+- Isso garante que o ruído gerado seja suave e diferente a cada execução.
+
+### `gerar_terreno_perlin`
+
+Gera a malha de vértices do terreno usando Perlin Noise.
+
+- Parâmetros:
+  - terreno: estrutura que armazena os vértices.
+  - largura, profundidade: dimensões do terreno.
+  - escala: fator de espaçamento entre pontos (define a "frequência" do ruído).
+  - altura: fator de multiplicação da altura (define o "relevo").
+- Para cada ponto (x, z) da grade:
+  - Calcula a altura y usando a função perlin.
+  - Centraliza o terreno em torno da origem.
+  - Adiciona o vértice ao vetor do terreno.
+- O resultado é um terreno 3D com relevos naturais e suaves.
+
+---
+
+## 6. Resumo Visual
 
 - **Perlin Noise:** Gera valores suaves e naturais para superfícies e texturas.
 - **Interpolação:** Mistura suave entre dois valores.
