@@ -58,12 +58,19 @@ struct Terreno {
 
 Terreno terreno;
 Mouse mouse;
-static int delay = 10;
+static int delay = 1;
 
 
 //--------------------------------------------------
 // Perlin Noise 2D Simples
 //--------------------------------------------------
+
+float g_tempo = 0.0f;
+
+const float largura_terreno = 100.0f;
+const float profundidade_terreno = 100.0f;
+const float escala_perlin = 0.1f;
+const float altura_perlin = 50.0f;
 
 // Tabela de gradientes unitários para 8 direções (2D)
 struct Grad2 {
@@ -136,7 +143,7 @@ float perlin(float x, float z) {
          );
 }
 
-void gerar_terreno_perlin(Terreno& terreno, int largura, int profundidade, float escala, float altura) {
+void gerar_terreno_perlin(Terreno& terreno, int largura, int profundidade, float escala, float altura, float tempo) {
   terreno.vertices.clear();
   terreno.largura = largura;
   terreno.profundidade = profundidade;
@@ -145,10 +152,25 @@ void gerar_terreno_perlin(Terreno& terreno, int largura, int profundidade, float
     for (int x = 0; x < largura; ++x) {
       float nx = x * escala;
       float nz = z * escala;
-      float y = perlin(nx, nz) * altura;
+      float y = perlin(nx + tempo, nz + tempo) * altura;
+      //float y = perlin(nx, nz) * altura;
       terreno.vertices.emplace_back(Vector3D(x - largura / 2, y, z - profundidade / 2));
     }
   }
+}
+
+void atualizar_terreno(int value) {
+  g_tempo += 0.01f;
+
+  gerar_terreno_perlin(terreno,
+    largura_terreno,
+    profundidade_terreno,
+    escala_perlin,
+    altura_perlin,
+    g_tempo);
+
+  glutPostRedisplay();
+  glutTimerFunc(delay, atualizar_terreno, 0);
 }
 
 //--------------------------------------------------
@@ -169,16 +191,12 @@ int main(int argc, char** argv) {
 
   init_perlin();
 
-  const float largura_terreno = 100.0f;
-  const float profundidade_terreno = 100.0f;
-  const float escala_perlin = 0.1f;
-  const float altura_perlin = 50.0f;
-
   gerar_terreno_perlin(terreno,
-                       largura_terreno, 
-                       profundidade_terreno, 
-                       escala_perlin, 
-                       altura_perlin);
+    largura_terreno,
+    profundidade_terreno,
+    escala_perlin,
+    altura_perlin,
+    g_tempo);
 
   glutDisplayFunc([]() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -272,10 +290,7 @@ int main(int argc, char** argv) {
     mouse.posicao = { x, y };
     });
 
-  glutTimerFunc(delay, [](int value) {
-    glutPostRedisplay();
-    glutTimerFunc(delay, [](int v) { glutPostRedisplay(); glutTimerFunc(delay, [](int) {}, 0); }, 0);
-    }, 0);
+  glutTimerFunc(delay, atualizar_terreno, 0);
 
   glutMainLoop();
   return 0;
