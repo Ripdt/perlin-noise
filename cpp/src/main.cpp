@@ -65,6 +65,8 @@ static int delay = 1;
 // Perlin Noise 2D Simples
 //--------------------------------------------------
 
+#define TIME_STEP 0.01f
+
 float g_tempo = 0.0f;
 
 const float largura_terreno = 100.0f;
@@ -152,15 +154,16 @@ void gerar_terreno_perlin(Terreno& terreno, int largura, int profundidade, float
     for (int x = 0; x < largura; ++x) {
       float nx = x * escala;
       float nz = z * escala;
-      float y = perlin(nx + tempo, nz + tempo) * altura;
-      //float y = perlin(nx, nz) * altura;
+      float y = perlin(nx, nz) * altura;
+      //float y = perlin(nx + tempo, nz + tempo) * altura;
+      //float y = (std::sin(perlin(nx + tempo, nz)) + std::sin(perlin(nx, nz + tempo))) * altura;
       terreno.vertices.emplace_back(Vector3D(x - largura / 2, y, z - profundidade / 2));
     }
   }
 }
 
 void atualizar_terreno(int value) {
-  g_tempo += 0.01f;
+  g_tempo += TIME_STEP;
 
   gerar_terreno_perlin(terreno,
     largura_terreno,
